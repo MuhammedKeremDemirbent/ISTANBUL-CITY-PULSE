@@ -1,0 +1,41 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# Environment variables & secrets
+.env
+*.env
+!.env-example
+!.env.example
+
+# IDEs & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache & Testing
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Data & Database files
+data/
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+
+# Personal notes
+ZZ_NOTLAR/
+
+
