@@ -5,8 +5,8 @@ Kullanım:
     BİZ make shell yapıyoruz.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import duckdb
 

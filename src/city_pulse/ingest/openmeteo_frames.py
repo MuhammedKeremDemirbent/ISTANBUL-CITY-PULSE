@@ -1,8 +1,10 @@
 #Client dosyasından alınan verileri tabloya çevirir. İnternetsiz çalışır.
 
 from datetime import datetime
+
 import polars as pl
-from city_pulse.domain import VARIABLES, ISTANBUL_TIMEZONE
+
+from city_pulse.domain import ISTANBUL_TIMEZONE, VARIABLES
 
 _TIME_FORMAT = "%Y-%m-%dT%H:%M"
 

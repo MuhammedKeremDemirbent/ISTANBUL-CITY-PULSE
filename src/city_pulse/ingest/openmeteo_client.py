@@ -1,6 +1,6 @@
 #İnternetten gelen veriyi alır.
 
-import requests #Veri Çeker
+import requests  #Veri Çeker
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
