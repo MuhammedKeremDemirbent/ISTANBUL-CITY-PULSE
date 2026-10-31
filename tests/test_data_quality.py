@@ -22,4 +22,4 @@ def test_target_column_is_valid() -> None:
 def test_features_do_not_contain_target() -> None:
     """Model girdilerinin (features) içine yanlışlıkla tahmin edilecek hedef (target) karışmış mı?"""
     # Veri sızıntısını (Data Leakage) önlemek için hedef değişken girdilerde OLMAMALIDIR!
-    assert TARGET_COLUMN not in FEATURE_COLUMNS
+    assert TARGET_COLUMN not in FEATURE_COLUMNS  

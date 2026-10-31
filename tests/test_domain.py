@@ -16,7 +16,7 @@ def test_istanbul_timezone_is_correct() -> None:
 def test_target_column_is_valid() -> None:
     """Hedef kolonun Avrupa yakası olduğunu ve hedef listesinde var olduğunu doğrula."""
     assert TARGET_COLUMN == "traffic_index_av"
-    assert TARGET_COLUMN in TRAFFIC_COLUMNS.values()
+    assert TARGET_COLUMN in TRAFFIC_COLUMNS.values()  
 
 
 def test_features_do_not_contain_target() -> None:
