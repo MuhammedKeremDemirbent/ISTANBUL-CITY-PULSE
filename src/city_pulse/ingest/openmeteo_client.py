@@ -1,17 +1,16 @@
-"""Open-Meteo HTTP istemcisi: yalnızca ağ işi yapar, veriyi yorumlamaz."""
+#İnternetten gelen veriyi alır.
 
-import requests
+import requests #Veri Çeker
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from city_pulse.domain import VARIABLES, WeatherPoint
 
-ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/era5"
-FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/era5" #Geçmiş
+FORECAST_URL = "https://api.open-meteo.com/v1/forecast"    #Anlık ve Gelecek
 
 
-def make_session(retries: int = 3) -> requests.Session:
-    """Geçici hatalarda (429/5xx) üstel bekleme ile yeniden dener; yalnızca GET."""
+def make_session(retries: int = 3) -> requests.Session:  #Bağlantı ve Hata Tölare etme
     retry = Retry(
         total=retries,
         backoff_factor=1.0,

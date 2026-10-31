@@ -52,3 +52,7 @@ clean:
 
 push:	
 	git push -u origin main
+
+shell:
+	uv run python -m city_pulse.sql_shell
+	

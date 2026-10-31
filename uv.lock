@@ -959,7 +959,7 @@ wheels = [
 [[package]]
 name = "istanbul-city-pulse"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
     { name = "duckdb" },
