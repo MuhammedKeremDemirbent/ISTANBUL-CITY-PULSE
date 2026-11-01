@@ -13,11 +13,8 @@ import duckdb
 
 def main() -> None:
     # Windows terminal encoding uyumluluğu
-    if sys.stdout.encoding != "utf-8":
-        try:
-            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-        except AttributeError:
-            pass
+    if sys.stdout.encoding != "utf-8" and hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
 
     root = Path(__file__).resolve().parents[2]
     traffic_path = root / "data" / "silver" / "traffic_hourly" / "*.parquet"
@@ -48,7 +45,9 @@ def main() -> None:
     print("  - 'weather' (2023-2025 saatlik hava durumu verisi)")
     if gold_path.parent.exists() and list(gold_path.parent.glob("*.parquet")):
         print("  - 'main'    (Trafik + Hava Durumu birlesik analitik tablosu)")
-    print("\nIpucu: Cok satirli SQL yazabilirsiniz. Calistirmak icin sonuna ';' koyup Enter'a basin.")
+    print(
+        "\nIpucu: Cok satirli SQL yazabilirsiniz. Calistirmak icin sonuna ';' koyup Enter'a basin."
+    )
     print("Cikmak icin: 'exit', 'quit' veya 'q'\n")
 
     buffer: list[str] = []

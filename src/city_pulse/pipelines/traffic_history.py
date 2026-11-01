@@ -48,9 +48,12 @@ def run_traffic_history(
 
     con.execute(query)
 
-    row_count: int = con.execute(
+    res = con.execute(
         f"SELECT count(*) FROM read_parquet('{silver_parquet.as_posix()}')"
-    ).fetchone()[0]
+    ).fetchone()
+    if res is None:
+        raise RuntimeError("Satır sayısı okunamadı.")
+    row_count: int = int(res[0])
 
     log.info(
         "Trafik verisi dönüştürüldü: %d satır yazıldı -> %s (%s - %s)",
@@ -63,7 +66,9 @@ def run_traffic_history(
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="İBB Trafik İndeksi saatlik dönüştürücü")
+    parser = argparse.ArgumentParser(
+        description="İBB Trafik İndeksi saatlik dönüştürücü"
+    )
     parser.add_argument(
         "start", nargs="?", default=DEFAULT_START, type=date.fromisoformat
     )

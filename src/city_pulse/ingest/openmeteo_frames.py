@@ -1,4 +1,4 @@
-#Client dosyasından alınan verileri tabloya çevirir. İnternetsiz çalışır.
+# Client dosyasından alınan verileri tabloya çevirir. İnternetsiz çalışır.
 
 from datetime import datetime
 
@@ -13,9 +13,9 @@ def _to_istanbul_time(col: str) -> pl.Expr:
     return (
         pl.col(col)
         .str.to_datetime(_TIME_FORMAT)
-        .dt.replace_time_zone("UTC")               
-        .dt.convert_time_zone(ISTANBUL_TIMEZONE)  
-        .dt.replace_time_zone(None)               
+        .dt.replace_time_zone("UTC")
+        .dt.convert_time_zone(ISTANBUL_TIMEZONE)
+        .dt.replace_time_zone(None)
     )
 
 

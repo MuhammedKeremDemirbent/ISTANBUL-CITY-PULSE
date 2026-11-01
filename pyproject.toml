@@ -12,7 +12,7 @@ dependencies = [
     "duckdb>=2.0.0",
     "polars>=2.1.0",
     "psycopg[binary]>=3.3.6",
-    "pyarrow>=26.0.0",
+    "pyarrow>=18.0.0",
     "pydantic>=2.14.2",
     "pydantic-settings>=2.16.2",
     "requests>=2.34.2",
@@ -21,6 +21,9 @@ dependencies = [
 
 [project.scripts]
 istanbul-city-pulse = "city_pulse:main"
+
+[tool.uv]
+package = false
 
 [build-sysctem]
 requires = ["uv_build>=0.13.6,<0.14.0"]
@@ -40,9 +43,9 @@ dev = [
 ]
 ml = [
     "lightgbm>=4.7.0",
-    "mlflow>=1.27.0",
+    "mlflow>=2.16.0",
     "numpy>=2.5.4",
-    "pandas>=3.1.0",
+    "pandas>=2.2.0",
     "scikit-learn>=1.9.1",
 ]
 quality = [

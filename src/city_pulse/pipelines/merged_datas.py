@@ -63,9 +63,12 @@ def run_gold_pipeline(
 
     con.execute(query)
 
-    row_count: int = con.execute(
+    res = con.execute(
         f"SELECT count(*) FROM read_parquet('{gold_output_path.as_posix()}')"
-    ).fetchone()[0]
+    ).fetchone()
+    if res is None:
+        raise RuntimeError("Satır sayısı okunamadı.")
+    row_count: int = int(res[0])
 
     log.info(
         "Gold tablosu hazırlandı: %d satır yazıldı -> %s (%s - %s)",
