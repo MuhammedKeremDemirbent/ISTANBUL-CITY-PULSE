@@ -69,9 +69,10 @@ def run_training(
     model: Regressor,
     baseline: Regressor,
     registry: ModelRegistry,
+    holidays: pl.DataFrame | None = None,
 ) -> TrainingResult:
     """Uçtan uca eğitim: ayır, baz model ve modeli eğit, test setinde ölç, kaydet, gerekirse yükselt."""
-    frame = build_training_frame(main)
+    frame = build_training_frame(main, holidays)
     split = time_based_split(frame, split_config)
 
     train_model(baseline, split)
@@ -182,6 +183,15 @@ def main(argv: Sequence[str] | None = None) -> None:
     log.info("Gold veri tablosu okunuyor: %s", gold_path)
     main_df = pl.read_parquet(gold_path)
 
+    # Tatil günleri tablosunu yükle (yoksa model tatilsiz çalışır)
+    holidays_path = root_dir / "data" / "silver" / "holidays" / "turkey_holidays_2023_2025.parquet"
+    holidays_df: pl.DataFrame | None = None
+    if holidays_path.exists():
+        holidays_df = pl.read_parquet(holidays_path)
+        log.info("Tatil tablosu yüklendi: %d gün", holidays_df.height)
+    else:
+        log.warning("Tatil tablosu bulunamadı (%s); is_holiday=0 olarak devam ediliyor.", holidays_path)
+
     split_config = SplitConfig(train_end=args.train_end, valid_end=args.valid_end)
     baseline = HourDayBaseline()
     model = LightGbmRegressor()
@@ -195,6 +205,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         model=model,
         baseline=baseline,
         registry=registry,
+        holidays=holidays_df,
     )
 
     log.info(

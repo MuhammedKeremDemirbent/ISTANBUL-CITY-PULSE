@@ -23,6 +23,7 @@ COLUMN_DTYPES: Final[Mapping[str, type[pl.DataType]]] = {
     "hour": pl.Int32,
     "month": pl.Int32,
     "is_weekend": pl.Int32,
+    "is_holiday": pl.Int32,
     "temperature_2m": pl.Float64,
     "precipitation": pl.Float64,
     "wind_speed_10m": pl.Float64,

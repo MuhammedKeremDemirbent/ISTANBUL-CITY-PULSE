@@ -55,6 +55,7 @@ FEATURE_COLUMNS: tuple[str, ...] = (
     "day_of_week",
     "month",
     "is_weekend",
+    "is_holiday",
     "temperature_2m",
     "precipitation",
     "wind_speed_10m",
