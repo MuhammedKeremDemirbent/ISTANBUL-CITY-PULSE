@@ -184,13 +184,18 @@ def main(argv: Sequence[str] | None = None) -> None:
     main_df = pl.read_parquet(gold_path)
 
     # Tatil günleri tablosunu yükle (yoksa model tatilsiz çalışır)
-    holidays_path = root_dir / "data" / "silver" / "holidays" / "turkey_holidays_2023_2025.parquet"
+    holidays_path = (
+        root_dir / "data" / "silver" / "holidays" / "turkey_holidays_2023_2025.parquet"
+    )
     holidays_df: pl.DataFrame | None = None
     if holidays_path.exists():
         holidays_df = pl.read_parquet(holidays_path)
         log.info("Tatil tablosu yüklendi: %d gün", holidays_df.height)
     else:
-        log.warning("Tatil tablosu bulunamadı (%s); is_holiday=0 olarak devam ediliyor.", holidays_path)
+        log.warning(
+            "Tatil tablosu bulunamadı (%s); is_holiday=0 olarak devam ediliyor.",
+            holidays_path,
+        )
 
     split_config = SplitConfig(train_end=args.train_end, valid_end=args.valid_end)
     baseline = HourDayBaseline()

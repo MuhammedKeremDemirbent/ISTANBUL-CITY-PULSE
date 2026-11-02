@@ -1521,6 +1521,7 @@ dev = [
 ]
 ml = [
     { name = "lightgbm" },
+    { name = "matplotlib" },
     { name = "mlflow" },
     { name = "numpy" },
     { name = "pandas" },
@@ -1558,6 +1559,7 @@ dev = [
 ]
 ml = [
     { name = "lightgbm", specifier = ">=4.7.0" },
+    { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "mlflow", specifier = ">=2.16.0" },
     { name = "numpy", specifier = ">=2.5.4" },
     { name = "pandas", specifier = ">=2.2.0" },

@@ -1,16 +1,20 @@
 """`main` analitik tablosundan model eğitim çerçevesi üretir. Genel düzeltme sağlar data leakgeyi engelleme konusunda çok önemlidir."""
 
 import logging
+from typing import Final
 
 import polars as pl
 
 from city_pulse.features.columns import (
     COLUMN_DTYPES,
     FRAME_COLUMNS,
+    TARGET_COLUMN,
     TIMESTAMP_COLUMN,
 )
 
 log = logging.getLogger(__name__)
+
+HEAVY_RAIN_THRESHOLD_MM: Final[float] = 3.0
 
 
 class FeatureSchemaError(ValueError):
@@ -37,6 +41,8 @@ def build_training_frame(
             kolonu tarih-saat tipinde değilse.
     """
     main = _attach_holiday_flag(main, holidays)
+    main = _attach_rain_flags(main)
+    main = _attach_lag_features(main)
     _validate_schema(main)
     frame = main.select(FRAME_COLUMNS).with_columns(
         [pl.col(name).cast(dtype) for name, dtype in COLUMN_DTYPES.items()]
@@ -63,6 +69,32 @@ def _attach_holiday_flag(
         )
     log.debug("Tatil tablosu sağlanmadı; is_holiday=0 olarak işaretlendi.")
     return main.with_columns(pl.lit(0).cast(pl.Int32).alias("is_holiday"))
+
+
+def _attach_rain_flags(main: pl.DataFrame) -> pl.DataFrame:
+    """Precipitation kolonundan `is_raining` (yağış var mı) ve `heavy_rain` (sağanak mı) bayraklarını üretir."""
+    if "precipitation" not in main.columns:
+        raise FeatureSchemaError(
+            "Yağış bayrakları için 'precipitation' kolonu bulunamadı."
+        )
+    return main.with_columns(
+        (pl.col("precipitation") > 0.0).cast(pl.Int32).alias("is_raining"),
+        (pl.col("precipitation") >= HEAVY_RAIN_THRESHOLD_MM)
+        .cast(pl.Int32)
+        .alias("heavy_rain"),
+    )
+
+
+def _attach_lag_features(main: pl.DataFrame) -> pl.DataFrame:
+    """Zamana göre sıralı tablodan hedef değişkenin 1 saatlik ve 24 saatlik gecikmelerini üretir."""
+    if TARGET_COLUMN not in main.columns:
+        raise FeatureSchemaError(
+            f"Lag öznitelikleri için '{TARGET_COLUMN}' kolonu bulunamadı."
+        )
+    return main.sort(TIMESTAMP_COLUMN).with_columns(
+        pl.col(TARGET_COLUMN).shift(1).alias("traffic_index_av_lag_1h"),
+        pl.col(TARGET_COLUMN).shift(24).alias("traffic_index_av_lag_24h"),
+    )
 
 
 def _validate_schema(main: pl.DataFrame) -> None:

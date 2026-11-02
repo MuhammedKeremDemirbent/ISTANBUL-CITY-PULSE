@@ -58,8 +58,12 @@ FEATURE_COLUMNS: tuple[str, ...] = (
     "is_holiday",
     "temperature_2m",
     "precipitation",
+    "is_raining",
+    "heavy_rain",
     "wind_speed_10m",
     "relative_humidity_2m",
+    "traffic_index_av_lag_1h",
+    "traffic_index_av_lag_24h",
 )
 
 TARGET_COLUMN: str = "traffic_index_av"

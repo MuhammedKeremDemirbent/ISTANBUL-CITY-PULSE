@@ -26,7 +26,11 @@ COLUMN_DTYPES: Final[Mapping[str, type[pl.DataType]]] = {
     "is_holiday": pl.Int32,
     "temperature_2m": pl.Float64,
     "precipitation": pl.Float64,
+    "is_raining": pl.Int32,
+    "heavy_rain": pl.Int32,
     "wind_speed_10m": pl.Float64,
     "relative_humidity_2m": pl.Float64,
+    "traffic_index_av_lag_1h": pl.Float64,
+    "traffic_index_av_lag_24h": pl.Float64,
     TARGET_COLUMN: pl.Float64,
 }

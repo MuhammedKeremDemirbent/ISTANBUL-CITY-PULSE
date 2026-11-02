@@ -37,9 +37,9 @@ class _FakeRegistry:
 
 
 def _main_table() -> pl.DataFrame:
-    """2025-01-01 ile 2025-01-10 arası saatlik; hedef yalnızca saate bağlı."""
+    """Saatlik zaman serisi; hedef yalnızca saate bağlı."""
     timestamps = pl.datetime_range(
-        datetime(2025, 1, 1), datetime(2025, 1, 10, 23), interval="1h", eager=True
+        datetime(2024, 12, 24), datetime(2025, 1, 10, 23), interval="1h", eager=True
     )
     return (
         pl.DataFrame({TIMESTAMP_COLUMN: timestamps})

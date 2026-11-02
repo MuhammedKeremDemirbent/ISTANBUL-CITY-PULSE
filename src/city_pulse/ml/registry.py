@@ -34,9 +34,9 @@ class ModelRegistry(Protocol):
 
 def _make_pyfunc_model(model: Regressor) -> Any:
     """`Regressor`'ı MLflow'un pyfunc model yapısına uyarlar."""
-    import mlflow.pyfunc  # type: ignore[import-untyped]  # MLflow'un resmi tip belirteçleri yok
+    from mlflow.pyfunc import PythonModel  # type: ignore[import-untyped]  # MLflow'un resmi tip belirteçleri yok
 
-    class _PolarsRegressorModel(mlflow.pyfunc.PythonModel):
+    class _PolarsRegressorModel(PythonModel):  # type: ignore[misc]
         def __init__(self, regressor: Regressor) -> None:
             self._model = regressor
 

@@ -22,10 +22,15 @@ def _frame(n: int) -> pl.DataFrame:
             "hour": [8] * n,
             "month": [1] * n,
             "is_weekend": [0] * n,
+            "is_holiday": [0] * n,
             "temperature_2m": [15.0] * n,
             "precipitation": [0.0] * n,
+            "is_raining": [0] * n,
+            "heavy_rain": [0] * n,
             "wind_speed_10m": [10.0] * n,
             "relative_humidity_2m": [60.0] * n,
+            "traffic_index_av_lag_1h": [10.0] * n,
+            "traffic_index_av_lag_24h": [10.0] * n,
             "traffic_index_av": [1.0] * n,
         }
     )

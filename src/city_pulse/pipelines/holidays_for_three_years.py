@@ -27,10 +27,7 @@ def build_holidays_frame(years: list[int]) -> pl.DataFrame:
     Her satır bir tatil gününü temsil eder.
     """
     tr = holidays.Turkey(years=years)
-    rows = [
-        {"date": date, "holiday_name": name}
-        for date, name in sorted(tr.items())
-    ]
+    rows = [{"date": date, "holiday_name": name} for date, name in sorted(tr.items())]
     return pl.DataFrame(rows).with_columns(
         pl.col("date").cast(pl.Date),
         pl.col("holiday_name").cast(pl.Utf8),
@@ -47,7 +44,9 @@ def save_holidays(frame: pl.DataFrame, output_path: Path) -> None:
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
     log.info("Türkiye tatil günleri oluşturuluyor: %s", _YEARS)
 
     frame = build_holidays_frame(_YEARS)

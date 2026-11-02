@@ -1,7 +1,4 @@
-.PHONY: help install sync test test-cov lint format check up down logs clean shell mlflow
-
-# src/ klasörünü Python modül yolu olarak tanımla (package=false nedeniyle gerekli)
-export PYTHONPATH := src
+.PHONY: help install sync test test-cov lint format check up down logs clean
 
 help:
 	@echo ========================================================
@@ -56,7 +53,7 @@ push:
 	git push -u origin main
 
 shell:
-	uv run python -m city_pulse.sql_shell
+	uv run python src/city_pulse/sql_shell.py
 
 mlflow:
 	uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
