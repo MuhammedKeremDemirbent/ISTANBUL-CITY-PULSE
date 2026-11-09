@@ -1,9 +1,3 @@
-"""Anlık (current) ve saatlik tahmin (forecast): bronze (ham JSON) + silver (Parquet).
-
-Kullanım:
-    uv run python -m city_pulse.pipelines.weather_live
-"""
-
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime

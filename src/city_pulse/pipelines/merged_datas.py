@@ -1,9 +1,3 @@
-"""Gold katmanı boru hattı: Silver (Trafik + Hava Durumu + Tatil) -> Gold (ML Özellik Tablosu).
-
-Kullanım:
-    uv run python -m city_pulse.pipelines.merged_datas 2023-01-01 2025-12-31
-"""
-
 import argparse
 import logging
 from collections.abc import Sequence
@@ -25,21 +19,38 @@ def run_gold_pipeline(
     silver_traffic_path: Path,
     silver_weather_path: Path,
     silver_holidays_path: Path,
+    silver_school_path: Path,
     gold_output_path: Path,
 ) -> int:
     """Silver tablolarını birleştirir, zaman özelliklerini ekler ve Gold Parquet olarak kaydeder.
 
     Tatil tablosu günlüktür (saat yok); `timestamp`'in tarihine göre birleştirilir,
     böylece tatil gününün tüm saatleri `is_holiday = 1` olur.
+    Okul takvimi saatlik olup `timestamp` üzerinden direkt eşlenir.
+    Eşleşmeyen saatler için okul bayrakları 0 (tatil/dışı dönem) olarak kabul edilir.
     """
     gold_output_path.parent.mkdir(parents=True, exist_ok=True)
 
     con = duckdb.connect()
 
+    # Trafik verisi saat başına (date_trunc) hizalanır. Aynı saat içinde birden fazla
+    # ölçüm varsa en sonuncusu seçilerek (rn = 1) duplicate oluşması engellenir.
     # Tatil tablosu tarih bazında tekilleştirilir: aynı güne iki kayıt düşse bile
     # LEFT JOIN saat satırlarını çoğaltmaz (fan-out koruması).
     query = f"""
     COPY (
+        WITH traffic_hourly AS (
+            SELECT
+                date_trunc('hour', timestamp) AS timestamp,
+                traffic_index,
+                traffic_index_an,
+                traffic_index_av,
+                ROW_NUMBER() OVER (
+                    PARTITION BY date_trunc('hour', timestamp)
+                    ORDER BY timestamp DESC
+                ) AS rn
+            FROM read_parquet('{silver_traffic_path.as_posix()}')
+        )
         SELECT
             t.timestamp,
 
@@ -49,6 +60,11 @@ def run_gold_pipeline(
             EXTRACT(month FROM t.timestamp)::INT AS month,
             CASE WHEN EXTRACT(isodow FROM t.timestamp) IN (6, 7) THEN 1 ELSE 0 END AS is_weekend,
             CASE WHEN h.date IS NOT NULL THEN 1 ELSE 0 END AS is_holiday,
+
+            -- Okul Takvimi (MEB resmi takvimi; eşleşme yoksa 0)
+            COALESCE(sc.is_school_term, 0)::INT           AS is_school_term,
+            COALESCE(sc.is_school_morning_rush, 0)::INT   AS is_school_morning_rush,
+            COALESCE(sc.is_school_afternoon_rush, 0)::INT AS is_school_afternoon_rush,
 
             -- Hedef Değişkenler (Tahmin edilecek trafik indeksleri)
             t.traffic_index,
@@ -61,12 +77,17 @@ def run_gold_pipeline(
             w.wind_speed_10m,
             w.relative_humidity_2m
 
-        FROM read_parquet('{silver_traffic_path.as_posix()}') t
+        FROM (
+            SELECT timestamp, traffic_index, traffic_index_an, traffic_index_av
+            FROM traffic_hourly
+            WHERE rn = 1
+        ) t
         JOIN read_parquet('{silver_weather_path.as_posix()}') w ON t.timestamp = w.timestamp
         LEFT JOIN (
             SELECT DISTINCT date
             FROM read_parquet('{silver_holidays_path.as_posix()}')
         ) h ON CAST(t.timestamp AS DATE) = h.date
+        LEFT JOIN read_parquet('{silver_school_path.as_posix()}') sc ON t.timestamp = sc.timestamp
         WHERE t.timestamp >= '{start} 00:00:00'
           AND t.timestamp <= '{end} 23:59:59'
         ORDER BY t.timestamp
@@ -116,6 +137,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     silver_holidays = (
         root_dir / "data" / "silver" / "holidays" / "turkey_holidays_2023_2025.parquet"
     )
+    silver_school = (
+        root_dir / "data" / "silver" / "school" / "school_calendar_2023_2025.parquet"
+    )
     gold_output = (
         root_dir
         / "data"
@@ -129,6 +153,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         silver_traffic_path=silver_traffic,
         silver_weather_path=silver_weather,
         silver_holidays_path=silver_holidays,
+        silver_school_path=silver_school,
         gold_output_path=gold_output,
     )
 

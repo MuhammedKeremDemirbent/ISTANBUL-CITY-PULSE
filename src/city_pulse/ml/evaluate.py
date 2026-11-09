@@ -1,5 +1,3 @@
-"""Model değerlendirmesi."""
-
 import math
 from dataclasses import dataclass
 

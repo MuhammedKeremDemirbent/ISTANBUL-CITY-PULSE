@@ -1,5 +1,3 @@
-"""Alan modelleri ve sabitler: bağımlılığı olmayan en alt katman."""
-
 from dataclasses import dataclass
 
 # Zaman Dilimi
@@ -64,6 +62,9 @@ FEATURE_COLUMNS: tuple[str, ...] = (
     "relative_humidity_2m",
     "traffic_index_av_lag_1h",
     "traffic_index_av_lag_24h",
+    "is_school_term",
+    "is_school_morning_rush",
+    "is_school_afternoon_rush",
 )
 
 TARGET_COLUMN: str = "traffic_index_av"

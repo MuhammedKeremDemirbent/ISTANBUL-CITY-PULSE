@@ -1,5 +1,3 @@
-"""Dosya yazma (I/O) tek yerde. Boru hatları `Store` arayüzüne bağımlıdır, diske değil."""
-
 import json
 from pathlib import Path
 from typing import Protocol

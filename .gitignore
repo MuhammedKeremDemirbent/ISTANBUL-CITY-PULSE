@@ -5,6 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
+*.tmp
+*.tmp.*
 
 # Virtual environments
 .venv/
@@ -28,6 +30,16 @@ Thumbs.db
 htmlcov/
 .coverage
 
+# Logging & Airflow Logs
+logs/
+*.log
+
+# dbt (Data Build Tool) artifacts & logs
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/.user.yml
+
 # Data & Database files
 data/
 *.duckdb
@@ -35,7 +47,9 @@ data/
 *.db
 *.sqlite
 
+# MLOps & Experiment Tracking
+mlruns/
+mlflow.db
+
 # Personal notes
 ZZ_NOTLAR/
-
-

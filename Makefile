@@ -57,3 +57,22 @@ shell:
 
 mlflow:
 	uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
+
+check:
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy src
+	uv run pytest
+
+dbt-core:
+	uv run --group dbt dbt docs generate --project-dir dbt --profiles-dir dbt
+	uv run --group dbt dbt docs serve --project-dir dbt --profiles-dir dbt --port 8081
+
+dbt-run:
+	uv run --group dbt dbt run --project-dir dbt --profiles-dir dbt
+
+dbt-test:
+	uv run --group dbt dbt test --project-dir dbt --profiles-dir dbt
+
+dashboard:
+	uv run streamlit run src/city_pulse/dashboard/app.py

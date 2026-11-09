@@ -1,0 +1,169 @@
+[2026-11-07T14:12:27.476+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-11-07T14:12:27.495+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:10:19.054287+00:00 [queued]>
+[2026-11-07T14:12:27.502+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:10:19.054287+00:00 [queued]>
+[2026-11-07T14:12:27.503+0000] {taskinstance.py:2866} INFO - Starting attempt 3 of 3
+[2026-11-07T14:12:27.516+0000] {taskinstance.py:2889} INFO - Executing <Task(PythonOperator): predict_live_traffic> on 2026-11-07 14:10:19.054287+00:00
+[2026-11-07T14:12:27.523+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'istanbul_traffic_live_prediction', 'predict_live_traffic', 'manual__2026-11-07T14:10:19.054287+00:00', '--job-id', '14', '--raw', '--subdir', 'DAGS_FOLDER/traffic_prediction_dag.py', '--cfg-path', '/tmp/tmp8fwba_dm']
+[2026-11-07T14:12:27.526+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=257) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-11-07T14:12:27.526+0000] {standard_task_runner.py:105} INFO - Job 14: Subtask predict_live_traffic
+[2026-11-07T14:12:27.526+0000] {standard_task_runner.py:72} INFO - Started process 258 to run task
+[2026-11-07T14:12:27.582+0000] {task_command.py:467} INFO - Running <TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:10:19.054287+00:00 [running]> on host ab0e2358d061
+[2026-11-07T14:12:27.672+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='city_pulse' AIRFLOW_CTX_DAG_ID='istanbul_traffic_live_prediction' AIRFLOW_CTX_TASK_ID='predict_live_traffic' AIRFLOW_CTX_EXECUTION_DATE='2026-11-07T14:10:19.054287+00:00' AIRFLOW_CTX_TRY_NUMBER='3' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-11-07T14:10:19.054287+00:00'
+[2026-11-07T14:12:27.673+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-11-07T14:12:28.859+0000] {taskinstance.py:3311} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 422, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 238, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 256, in execute_callable
+    return runner.run(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/traffic_prediction_dag.py", line 43, in task_predict_live_traffic
+    from city_pulse.pipelines.predict_live import run_predict_live
+  File "/opt/airflow/src/city_pulse/pipelines/predict_live.py", line 30, in <module>
+    from city_pulse.ml.lightgbm import LightGbmRegressor
+  File "/opt/airflow/src/city_pulse/ml/lightgbm.py", line 6, in <module>
+    import lightgbm as lgb
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/__init__.py", line 11, in <module>
+    from .basic import Booster, Dataset, EvalResult, Sequence, register_logger
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/basic.py", line 32, in <module>
+    from .compat import PANDAS_INSTALLED, concat, pd_CategoricalDtype, pd_DataFrame, pd_Series
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/compat.py", line 11, in <module>
+    from sklearn import __version__ as _sklearn_version
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/__init__.py", line 70, in <module>
+    from sklearn.base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/base.py", line 20, in <module>
+    from sklearn.utils._metadata_requests import _MetadataRequester, _routing_enabled
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/__init__.py", line 9, in <module>
+    from sklearn.utils._chunking import gen_batches, gen_even_slices
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_chunking.py", line 11, in <module>
+    from sklearn.utils._param_validation import Interval, validate_params
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 17, in <module>
+    from sklearn.utils.validation import _is_arraylike_not_scalar
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/validation.py", line 24, in <module>
+    from sklearn.utils._array_api import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_array_api.py", line 23, in <module>
+    from sklearn.utils.fixes import parse_version
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/fixes.py", line 19, in <module>
+    import pandas as pd
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/__init__.py", line 46, in <module>
+    from pandas.core.api import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/core/api.py", line 1, in <module>
+    from pandas._libs import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/_libs/__init__.py", line 18, in <module>
+    from pandas._libs.interval import Interval
+  File "interval.pyx", line 1, in init pandas._libs.interval
+ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+[2026-11-07T14:12:28.881+0000] {taskinstance.py:1225} INFO - Marking task as FAILED. dag_id=istanbul_traffic_live_prediction, task_id=predict_live_traffic, run_id=manual__2026-11-07T14:10:19.054287+00:00, execution_date=20261107T141019, start_date=20261107T141227, end_date=20261107T141228
+[2026-11-07T14:12:28.896+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-11-07T14:12:28.897+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 14 for task predict_live_traffic (numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject; 258)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/cli.py", line 116, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3005, in _run_raw_task
+    return _run_raw_task(
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 273, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3159, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3183, in _execute_task
+    return _execute_task(self, context, task_orig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 422, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 238, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 256, in execute_callable
+    return runner.run(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/traffic_prediction_dag.py", line 43, in task_predict_live_traffic
+    from city_pulse.pipelines.predict_live import run_predict_live
+  File "/opt/airflow/src/city_pulse/pipelines/predict_live.py", line 30, in <module>
+    from city_pulse.ml.lightgbm import LightGbmRegressor
+  File "/opt/airflow/src/city_pulse/ml/lightgbm.py", line 6, in <module>
+    import lightgbm as lgb
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/__init__.py", line 11, in <module>
+    from .basic import Booster, Dataset, EvalResult, Sequence, register_logger
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/basic.py", line 32, in <module>
+    from .compat import PANDAS_INSTALLED, concat, pd_CategoricalDtype, pd_DataFrame, pd_Series
+  File "/home/airflow/.local/lib/python3.12/site-packages/lightgbm/compat.py", line 11, in <module>
+    from sklearn import __version__ as _sklearn_version
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/__init__.py", line 70, in <module>
+    from sklearn.base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/base.py", line 20, in <module>
+    from sklearn.utils._metadata_requests import _MetadataRequester, _routing_enabled
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/__init__.py", line 9, in <module>
+    from sklearn.utils._chunking import gen_batches, gen_even_slices
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_chunking.py", line 11, in <module>
+    from sklearn.utils._param_validation import Interval, validate_params
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 17, in <module>
+    from sklearn.utils.validation import _is_arraylike_not_scalar
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/validation.py", line 24, in <module>
+    from sklearn.utils._array_api import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/_array_api.py", line 23, in <module>
+    from sklearn.utils.fixes import parse_version
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/fixes.py", line 19, in <module>
+    import pandas as pd
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/__init__.py", line 46, in <module>
+    from pandas.core.api import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/core/api.py", line 1, in <module>
+    from pandas._libs import (
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/_libs/__init__.py", line 18, in <module>
+    from pandas._libs.interval import Interval
+  File "interval.pyx", line 1, in init pandas._libs.interval
+ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+[2026-11-07T14:12:28.947+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2026-11-07T14:12:28.965+0000] {taskinstance.py:3895} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-11-07T14:12:28.972+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

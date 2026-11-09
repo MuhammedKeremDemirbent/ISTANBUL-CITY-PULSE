@@ -1,5 +1,3 @@
-# Client dosyasından alınan verileri tabloya çevirir. İnternetsiz çalışır.
-
 from datetime import datetime
 
 import polars as pl

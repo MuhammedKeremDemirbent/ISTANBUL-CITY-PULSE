@@ -31,6 +31,9 @@ def _frame(n: int) -> pl.DataFrame:
             "relative_humidity_2m": [60.0] * n,
             "traffic_index_av_lag_1h": [10.0] * n,
             "traffic_index_av_lag_24h": [10.0] * n,
+            "is_school_term": [0] * n,
+            "is_school_morning_rush": [0] * n,
+            "is_school_afternoon_rush": [0] * n,
             "traffic_index_av": [1.0] * n,
         }
     )

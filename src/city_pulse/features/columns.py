@@ -1,5 +1,3 @@
-"""Hangi kolon girdi hangisi çıktı olduğunu burada tanımlıyoruz."""
-
 from collections.abc import Mapping
 from typing import Final
 
@@ -32,5 +30,8 @@ COLUMN_DTYPES: Final[Mapping[str, type[pl.DataType]]] = {
     "relative_humidity_2m": pl.Float64,
     "traffic_index_av_lag_1h": pl.Float64,
     "traffic_index_av_lag_24h": pl.Float64,
+    "is_school_term": pl.Int32,
+    "is_school_morning_rush": pl.Int32,
+    "is_school_afternoon_rush": pl.Int32,
     TARGET_COLUMN: pl.Float64,
 }

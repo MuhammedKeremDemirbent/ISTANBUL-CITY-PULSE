@@ -1,5 +1,3 @@
-"""Modelleme katmanının ortak sözleşmesi: somut kütüphaneye değil arayüze bağımlılık."""
-
 from typing import Final, Protocol
 
 import polars as pl

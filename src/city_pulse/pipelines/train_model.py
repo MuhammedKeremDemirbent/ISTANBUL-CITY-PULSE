@@ -1,10 +1,3 @@
-"""Eğitim akışı: özellik -> zamana göre ayır -> baz model + model -> değerlendir -> kaydet.
-
-Kullanım:
-    uv run python -m city_pulse.pipelines.train_model
-    uv run python -m city_pulse.pipelines.train_model --train-end 2025-01-01 --valid-end 2025-07-01
-"""
-
 import argparse
 import logging
 from collections.abc import Mapping, Sequence
@@ -70,9 +63,10 @@ def run_training(
     baseline: Regressor,
     registry: ModelRegistry,
     holidays: pl.DataFrame | None = None,
+    school_calendar: pl.DataFrame | None = None,
 ) -> TrainingResult:
     """Uçtan uca eğitim: ayır, baz model ve modeli eğit, test setinde ölç, kaydet, gerekirse yükselt."""
-    frame = build_training_frame(main, holidays)
+    frame = build_training_frame(main, holidays, school_calendar)
     split = time_based_split(frame, split_config)
 
     train_model(baseline, split)
@@ -197,6 +191,20 @@ def main(argv: Sequence[str] | None = None) -> None:
             holidays_path,
         )
 
+    # Okul takvimi tablosunu yükle (yoksa okul bayrakları 0 olarak devam eder)
+    school_path = (
+        root_dir / "data" / "silver" / "school" / "school_calendar_2023_2025.parquet"
+    )
+    school_df: pl.DataFrame | None = None
+    if school_path.exists():
+        school_df = pl.read_parquet(school_path)
+        log.info("Okul takvimi yüklendi: %d satır", school_df.height)
+    else:
+        log.warning(
+            "Okul takvimi bulunamadı (%s); okul bayrakları=0 olarak devam ediliyor.",
+            school_path,
+        )
+
     split_config = SplitConfig(train_end=args.train_end, valid_end=args.valid_end)
     baseline = HourDayBaseline()
     model = LightGbmRegressor()
@@ -211,6 +219,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         baseline=baseline,
         registry=registry,
         holidays=holidays_df,
+        school_calendar=school_df,
     )
 
     log.info(

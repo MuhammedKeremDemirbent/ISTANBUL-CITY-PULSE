@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: silver
+    schema: main
+    tables:
+      - name: traffic
+        meta:
+          external_location: "data/silver/traffic_hourly/istanbul_2023-01-01_2025-12-31.parquet"
+      - name: weather
+        meta:
+          external_location: "data/silver/weather_hourly/istanbul_center_2023-01-01_2025-12-31.parquet"
+      - name: holidays
+        meta:
+          external_location: "data/silver/holidays/turkey_holidays_2023_2025.parquet"
+      - name: school
+        meta:
+          external_location: "data/silver/school/school_calendar_2023_2025.parquet"

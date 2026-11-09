@@ -1,5 +1,3 @@
-"""Zamana göre eğitim/doğrulama/test ayrımı. Rastgele ayrım yasaktır (sızıntı)."""
-
 import logging
 from dataclasses import dataclass
 from datetime import datetime

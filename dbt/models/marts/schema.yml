@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fct_city_pulse_hourly
+    description: "İstanbul saatlik trafik, hava ve takvim birleşik Fact tablosu (Gold Katmanı)."
+    columns:
+      - name: timestamp
+        description: "Saatlik UTC zaman damgası (Birincil Anahtar)."
+        tests:
+          - unique
+          - not_null
+      - name: traffic_index_av
+        description: "0 ile 100 arasındaki İBB ortalama trafik yoğunluğu indeksi."
+        tests:
+          - not_null
+      - name: temperature_2m
+        tests:
+          - not_null

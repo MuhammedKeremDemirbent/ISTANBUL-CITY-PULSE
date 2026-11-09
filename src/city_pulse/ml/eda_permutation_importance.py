@@ -1,5 +1,3 @@
-"""Özniteliklerin hedefle korelasyonu ve VIF (Variance Inflation Factor) çoklu doğrusallık analizi."""
-
 import io
 import sys
 from pathlib import Path

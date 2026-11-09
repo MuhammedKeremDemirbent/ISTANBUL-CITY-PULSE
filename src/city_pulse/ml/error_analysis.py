@@ -1,5 +1,3 @@
-"""Test seti üzerindeki model tahmin hatalarının (MAE/RMSE) saat ve gün kırılımında analizi."""
-
 from datetime import datetime
 from pathlib import Path
 

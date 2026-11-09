@@ -1,0 +1,25 @@
+[2026-11-07T14:16:07.219+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-11-07T14:16:07.244+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:16:03.986090+00:00 [queued]>
+[2026-11-07T14:16:07.253+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:16:03.986090+00:00 [queued]>
+[2026-11-07T14:16:07.254+0000] {taskinstance.py:2866} INFO - Starting attempt 1 of 3
+[2026-11-07T14:16:07.269+0000] {taskinstance.py:2889} INFO - Executing <Task(PythonOperator): predict_live_traffic> on 2026-11-07 14:16:03.986090+00:00
+[2026-11-07T14:16:07.278+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'istanbul_traffic_live_prediction', 'predict_live_traffic', 'manual__2026-11-07T14:16:03.986090+00:00', '--job-id', '17', '--raw', '--subdir', 'DAGS_FOLDER/traffic_prediction_dag.py', '--cfg-path', '/tmp/tmpt95i14nj']
+[2026-11-07T14:16:07.280+0000] {standard_task_runner.py:105} INFO - Job 17: Subtask predict_live_traffic
+[2026-11-07T14:16:07.280+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70 DeprecationWarning: This process (pid=209) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-11-07T14:16:07.281+0000] {standard_task_runner.py:72} INFO - Started process 210 to run task
+[2026-11-07T14:16:07.343+0000] {task_command.py:467} INFO - Running <TaskInstance: istanbul_traffic_live_prediction.predict_live_traffic manual__2026-11-07T14:16:03.986090+00:00 [running]> on host 48db077a5bed
+[2026-11-07T14:16:07.428+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='city_pulse' AIRFLOW_CTX_DAG_ID='istanbul_traffic_live_prediction' AIRFLOW_CTX_TASK_ID='predict_live_traffic' AIRFLOW_CTX_EXECUTION_DATE='2026-11-07T14:16:03.986090+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-11-07T14:16:03.986090+00:00'
+[2026-11-07T14:16:07.429+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-11-07T14:16:09.154+0000] {predict_live.py:227} INFO - Hava tahmini okunuyor: forecast_20261107T141605Z.parquet
+[2026-11-07T14:16:09.224+0000] {predict_live.py:237} INFO - Başlangıç referans trafik indeksi: 9.00
+[2026-11-07T14:16:09.245+0000] {builder.py:187} WARNING - 450/21508 satır eksik değer nedeniyle çıkarıldı (2.09%)
+[2026-11-07T14:16:09.251+0000] {split.py:58} INFO - zamana göre ayrım: train=12395 valid=4338 test=4325
+[2026-11-07T14:16:09.252+0000] {predict_live.py:188} INFO - Canlı tahmin için üretim modeli eğitiliyor...
+[2026-11-07T14:16:09.296+0000] {logging_mixin.py:190} WARNING - /home/***/.local/lib/python3.12/site-packages/lightgbm/sklearn.py:1106 LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y' instead.
+[2026-11-07T14:16:09.938+0000] {predict_live.py:200} INFO - Canlı trafik tahminleri başarıyla kaydedildi: /opt/airflow/data/gold/predictions/live_traffic_forecast_20261107T141609Z.parquet (168 saat)
+[2026-11-07T14:16:09.939+0000] {python.py:240} INFO - Done. Returned value was: Predictions generated successfully: 168 hours.
+[2026-11-07T14:16:09.971+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-11-07T14:16:09.971+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=istanbul_traffic_live_prediction, task_id=predict_live_traffic, run_id=manual__2026-11-07T14:16:03.986090+00:00, execution_date=20261107T141603, start_date=20261107T141607, end_date=20261107T141609
+[2026-11-07T14:16:10.029+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2026-11-07T14:16:10.058+0000] {taskinstance.py:3895} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-11-07T14:16:10.064+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

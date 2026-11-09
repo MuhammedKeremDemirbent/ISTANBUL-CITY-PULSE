@@ -1,12 +1,3 @@
-"""Türkiye resmi tatil günleri için Parquet veri seti üretir.
-
-2023-2025 yıllarını kapsar; hem resmi hem dini tatilleri içerir.
-Çıktı: data/silver/holidays/turkey_holidays_2023_2025.parquet
-
-Kullanım:
-    PYTHONPATH=src uv run python -m city_pulse.pipelines.holidays_for_three_years
-"""
-
 import logging
 from pathlib import Path
 

@@ -1,5 +1,3 @@
-"""Model eğitimi. MLflow'u bilmez; yalnızca `Regressor` arayüzüne bağlıdır."""
-
 from city_pulse.ml.protocols import Regressor, split_inputs_target
 from city_pulse.ml.split import Split
 

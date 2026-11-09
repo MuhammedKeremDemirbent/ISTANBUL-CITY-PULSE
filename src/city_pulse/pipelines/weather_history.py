@@ -1,9 +1,3 @@
-"""Geçmiş (ERA5) saatlik hava verisi: bronze (ham JSON) + silver (Parquet).
-
-Kullanım:
-    uv run python -m city_pulse.pipelines.weather_history 2024-01-01 2024-12-31
-"""
-
 import argparse
 import logging
 from collections.abc import Sequence

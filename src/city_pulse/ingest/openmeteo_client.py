@@ -1,5 +1,3 @@
-# İnternetten gelen veriyi alır.
-
 import requests  # Veri Çeker
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -38,7 +36,7 @@ class OpenMeteoClient:
         }
         return self._get(ARCHIVE_URL, params, timeout=60)
 
-    def fetch_forecast(self, point: WeatherPoint, forecast_days: int = 2) -> dict:
+    def fetch_forecast(self, point: WeatherPoint, forecast_days: int = 7) -> dict:
         params = {
             "latitude": point.lat,
             "longitude": point.lon,

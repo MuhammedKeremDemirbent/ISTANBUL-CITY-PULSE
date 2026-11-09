@@ -1,5 +1,3 @@
-"""Baz model: haftanın günü x saat ortalaması. Her gerçek model bunu geçmek zorundadır."""
-
 from typing import Final
 
 import polars as pl

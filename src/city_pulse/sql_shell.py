@@ -1,10 +1,3 @@
-"""Terminal içi interaktif DuckDB SQL konsolu.
-
-Kullanım:
-    uv run python -m city_pulse.sql_shell
-    BİZ make shell yapıyoruz.
-"""
-
 import sys
 from pathlib import Path
 
@@ -20,6 +13,7 @@ def main() -> None:
     traffic_path = root / "data" / "silver" / "traffic_hourly" / "*.parquet"
     weather_path = root / "data" / "silver" / "weather_hourly" / "*.parquet"
     gold_path = root / "data" / "gold" / "*.parquet"
+    school_path = root / "data" / "silver" / "school" / "*.parquet"
 
     con = duckdb.connect()
 
@@ -36,6 +30,10 @@ def main() -> None:
         con.execute(
             f"CREATE VIEW main AS SELECT * FROM read_parquet('{gold_path.as_posix()}')"
         )
+    if school_path.parent.exists() and list(school_path.parent.glob("*.parquet")):
+        con.execute(
+            f"CREATE VIEW school AS SELECT * FROM read_parquet('{school_path.as_posix()}')"
+        )
 
     print("=" * 60)
     print("Istanbul City Pulse - Interaktif DuckDB SQL Konsolu")
@@ -45,6 +43,10 @@ def main() -> None:
     print("  - 'weather' (2023-2025 saatlik hava durumu verisi)")
     if gold_path.parent.exists() and list(gold_path.parent.glob("*.parquet")):
         print("  - 'main'    (Trafik + Hava Durumu birlesik analitik tablosu)")
+    if school_path.parent.exists() and list(school_path.parent.glob("*.parquet")):
+        print(
+            "  - 'school'  (MEB okul takvimi: is_school_term, sabah/ogleden sonra rush)"
+        )
     print(
         "\nIpucu: Cok satirli SQL yazabilirsiniz. Calistirmak icin sonuna ';' koyup Enter'a basin."
     )

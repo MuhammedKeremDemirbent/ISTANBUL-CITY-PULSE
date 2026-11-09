@@ -1,5 +1,3 @@
-"""LightGBM regresyon modeli adaptörü. `Regressor` protokolünü karşılar."""
-
 from collections.abc import Callable, Mapping
 from typing import Any
 
