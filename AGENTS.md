@@ -2,7 +2,7 @@
 
 Bu dosya, projede çalışan tüm **Yapay Zeka Ajanları ve Kod Asistanları** için bağlamı, mimari prensipleri ve uyulması gereken zorunlu kuralları tanımlar. Çelişki halinde bu dosya, ajanın kendi varsayılan alışkanlıklarının önüne geçer.
 
----
+---  
 
 ##  1. Proje Özeti ve Amacı
 * **Proje Adı:** Istanbul City Pulse
