@@ -1,4 +1,4 @@
-# 🏙️ Istanbul City Pulse — Kentsel Veri Mühendisliği ve MLOps Platformu
+# Istanbul City Pulse — Urban Data Engineering and MLOps Platform
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-blueviolet)](https://github.com/astral-sh/uv)
@@ -11,56 +11,56 @@
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B)](https://streamlit.io/)
 [![Code Quality](https://img.shields.io/badge/linter%20%26%20type-Ruff%20%7C%20Mypy-black)](https://github.com/astral-sh/ruff)
 
-**Istanbul City Pulse**, İstanbul'un kentsel dinamiklerini (trafik yoğunluğu, meteorolojik koşullar, resmi tatil ve okul takvimleri) gerçek zamanlı ve geçmişe dönük olarak işleyen, modernize edilmiş bir **Veri Ambarı (Data Warehouse)** ve **MLOps** platformudur.
+**Istanbul City Pulse** is an end-to-end Data Engineering and MLOps platform that ingests, models, and analyzes Istanbul's urban dynamics (traffic congestion, meteorological conditions, public holidays, and school academic calendars) in both real-time and historical contexts.
 
-Platform, İBB Açık Veri Portalı ve Open-Meteo API'lerinden toplanan verileri **Medallion Mimarisi (Bronze $\rightarrow$ Silver $\rightarrow$ Gold)** prensibiyle DuckDB ve dbt üzerinde işler; eğitilmiş LightGBM modeli ve **Özyinelemeli Tahmin (Recursive Forecasting)** motoruyla önümüzdeki **168 saatin (7 gün)** şehir içi trafik projeksiyonunu otomatik olarak üretir.
+The platform collects raw data from the Istanbul Metropolitan Municipality (IMM) Open Data Portal and Open-Meteo APIs, structures it following the **Medallion Architecture (Bronze -> Silver -> Gold)** using DuckDB and dbt, and runs an engineered **LightGBM** model with a **Recursive Forecasting** engine to generate automated, continuous **168-hour (7-day)** hourly traffic projections.
 
 ---
 
-## 📐 Uçtan Uca Sistem Mimarisi
+## End-to-End System Architecture
 
-Aşağıdaki Mermaid akış diyagramı, verinin dış dünyadan toplanmasından başlayarak kullanıcı paneline kadar izlediği yolu gösterir:
+The Mermaid diagram below illustrates the complete data lifecycle from external ingestion to serving:
 
 ```mermaid
 flowchart TD
-    subgraph SOURCES["1. Dış Kaynaklar & API Katmanı"]
-        IBB["🏛️ İBB Açık Veri Portalı<br/>(Trafik İndeksi)"]
-        METEO["🌤️ Open-Meteo API<br/>(ERA5 Geçmiş + Anlık Forecast)"]
-        CAL["📅 Takvim Motoru<br/>(Resmi Tatiller & Okul Dönemleri)"]
+    subgraph SOURCES["1. External Data Sources and API Layer"]
+        IBB["IMM Open Data Portal<br/>(Traffic Index)"]
+        METEO["Open-Meteo API<br/>(ERA5 Reanalysis + Live Forecast)"]
+        CAL["Calendar Engine<br/>(Public Holidays and School Terms)"]
     end
 
-    subgraph INGESTION["2. Ingestion & Medallion Mimarisi"]
-        BRONZE[("🥉 Bronze Katmanı<br/>(Değişmez Ham JSON/CSV/Parquet)")]
-        SILVER[("🥈 Silver Katmanı<br/>(Temizlenmiş, Tipli Parquet Tabloları)")]
-        STORE["💾 FileStore & Atomik I/O<br/>(Protocol Tabanlı Depolama)"]
+    subgraph INGESTION["2. Ingestion and Medallion Architecture"]
+        BRONZE[("Bronze Layer<br/>(Immutable Raw JSON/CSV/Parquet)")]
+        SILVER[("Silver Layer<br/>(Cleaned, Typed Parquet Tables)")]
+        STORE["FileStore and Atomic I/O<br/>(Protocol-Based Storage)"]
     end
 
-    subgraph WAREHOUSE["3. Analitik Ambar & Dönüşüm (dbt + DuckDB)"]
-        DUCK[("🦆 DuckDB Ambarı<br/>data/warehouse.duckdb")]
+    subgraph WAREHOUSE["3. Analytical Warehouse and Transformation (dbt + DuckDB)"]
+        DUCK[("DuckDB Warehouse<br/>data/warehouse.duckdb")]
         STG["stg_traffic / stg_weather / stg_calendar<br/>(Staging Views)"]
         INT["int_traffic_weather_hourly<br/>(Intermediate Join)"]
-        MART["⭐ fct_city_pulse_hourly<br/>(Gold Fact Tablosu)"]
-        TESTS["✅ dbt Tests<br/>(unique, not_null, schema check)"]
+        MART["fct_city_pulse_hourly<br/>(Gold Fact Table)"]
+        TESTS["dbt Tests<br/>(unique, not_null, schema check)"]
     end
 
-    subgraph MLOPS["4. Makine Öğrenimi & MLOps Hattı"]
-        SPLIT["⏳ Time-Based Split<br/>(Veri Sızıntısız Zaman Bölümlemesi)"]
-        FEAT["⚙️ Feature Engineering<br/>(Lag 1h, Lag 24h, Yağış, Hafta Sonu, Rush Hour)"]
-        LGBM["🌳 LightGBM Regressor<br/>(vs. Baseline Model Karşılaştırması)"]
-        MLFLOW["📊 MLflow Tracking<br/>(Parametreler, Metrikler, Model Sürümleme)"]
+    subgraph MLOPS["4. Machine Learning and MLOps Pipeline"]
+        SPLIT["Time-Based Split<br/>(Leakage-Free Temporal Partitioning)"]
+        FEAT["Feature Engineering<br/>(Lag 1h, Lag 24h, Rain, Weekend, Rush Hours)"]
+        LGBM["LightGBM Regressor<br/>(vs. Baseline Model Comparison)"]
+        MLFLOW["MLflow Tracking<br/>(Parameters, Metrics, Model Versioning)"]
     end
 
-    subgraph ORCHESTRATION["5. Canlı Tahmin & Orkestrasyon (Airflow)"]
-        DAG["⏱️ Airflow DAG: istanbul_traffic_live_prediction<br/>(Her Gece 03:00 UTC)"]
-        RECURSIVE["🔁 168 Saatlik Recursive Forecaster<br/>(Lag Beslemeli Tahmin Motoru)"]
-        PRED_GOLD[("🥇 Gold Predictions<br/>live_traffic_forecast_*.parquet")]
+    subgraph ORCHESTRATION["5. Live Inference and Orchestration (Airflow)"]
+        DAG["Airflow DAG: istanbul_traffic_live_prediction<br/>(Daily 03:00 UTC)"]
+        RECURSIVE["168-Hour Recursive Forecaster<br/>(Lag-Fed Inference Engine)"]
+        PRED_GOLD[("Gold Predictions<br/>live_traffic_forecast_*.parquet")]
     end
 
-    subgraph SERVING["6. Sunum & Analiz Paneli"]
-        DASH["🚗 Streamlit Dashboard<br/>(Zaman Serisi, Isı Haritası, Hava Korelasyonu)"]
+    subgraph SERVING["6. Serving and Analytics Dashboard"]
+        DASH["Streamlit Dashboard<br/>(Time Series, Heatmap, Weather Correlation)"]
     end
 
-    %% Akış Bağlantıları
+    %% Pipeline Connections
     IBB --> STORE
     METEO --> STORE
     CAL --> STORE
@@ -70,139 +70,141 @@ flowchart TD
     MART --> TESTS
     MART --> SPLIT --> FEAT --> LGBM --> MLFLOW
 
-    DAG -->|1. Canlı Hava Durumu Çek| METEO
-    DAG -->|2. Tahmin Motorunu Çalıştır| RECURSIVE
-    LGBM -.->|Kayıtlı Model| RECURSIVE
-    MART -.->|Başlangıç Lag Değerleri| RECURSIVE
+    DAG -->|1. Fetch Live Weather| METEO
+    DAG -->|2. Trigger Forecast Engine| RECURSIVE
+    LGBM -.->|Registered Model| RECURSIVE
+    MART -.->|Initial Lag Values| RECURSIVE
     RECURSIVE --> PRED_GOLD
     PRED_GOLD --> DASH
 ```
 
 ---
 
-## 🛠️ Temel Mühendislik Standartları ve Teknolojik Tercihler
+## Core Engineering Principles and Technical Stack
 
-| Bileşen | Kullanılan Teknoloji | Neden Tercih Edildi? |
+| Component | Technology | Architectural Rationale |
 | :--- | :--- | :--- |
-| **Paket Yöneticisi** | `uv` | `pip`'e göre 10-100 kat daha hızlı, deterministik kilit dosyası (`uv.lock`) ve izole bağımlılık grupları (`dbt`, `ml`, `dev`). |
-| **Veri İşleme** | `Polars` | Pandas'ın bellek tüketiminden ve tek çekirdek kısıtından kaçınmak için; Rust tabanlı, çok çekirdekli (multithreaded) ve Arrow yerel mimarisi. |
-| **Analitik Veri Ambarı** | `DuckDB` | Sunucusuz (in-process), yüksek hızlı OLAP sorguları; doğrudan Parquet okuma/yazma desteği. |
-| **Veri Dönüşümü & Test** | `dbt-duckdb` | SQL/Jinja ile modüler dönüşüm katmanları (Staging, Intermediate, Marts); boru hattı öncesi otomatik veri kalitesi testleri (`unique`, `not_null`). |
-| **Makine Öğrenimi** | `LightGBM` | Tablosal zaman serisi verilerinde derin öğrenme ve doğrusal modellere kıyasla üstün başarım, düşük çıkarım (inference) süresi. |
-| **Zaman Serisi Stratejisi** | `Recursive Forecasting` | Geleceğe dönük 168 saat boyunca her saatin tahminini bir sonraki saatin `lag_1h` ve `lag_24h` girdisi olarak dinamik besleme. |
-| **Deney Takibi** | `MLflow` | Modellerin, hiperparametrelerin ve metriklerin (MAE, RMSE, R²) sistematik kaydı ve şampiyon model seçimi. |
-| **İş Akışı Orkestrasyonu** | `Apache Airflow` | İnce DAG prensibi; canlı hava tahmini çekimi ve çıkarım hattının periyodik (03:00 UTC) güvenilir icrası. |
-| **Görselleştirme** | `Streamlit & Plotly` | Airflow çıktısını anlık yansıtan, interaktif zaman serisi slider'ı, haftalık yoğunluk ısı haritası ve meteorolojik korelasyon paneli. |
-| **Kod Mimarisi** | `SOLID & Protocols` | I/O sınırlarında soyutlamalar (`StorageReader`, `StorageWriter`), tip güvenliği (`Mypy`), katı lintleme (`Ruff`). |
+| **Package Manager** | `uv` | 10-100x faster execution than pip, deterministic dependency resolution via `uv.lock`, and isolated dependency groups (`dbt`, `ml`, `dev`). |
+| **Data Processing** | `Polars` | Rust-based, multithreaded DataFrame engine built on Apache Arrow; eliminates Pandas memory overhead and single-core bottlenecks. |
+| **Analytical Warehouse** | `DuckDB` | Embedded, serverless in-process OLAP engine with zero-copy Parquet reading and high-throughput columnar analytics. |
+| **Data Transformation & Quality** | `dbt-duckdb` | Modular SQL/Jinja transformations (Staging, Intermediate, Marts) with built-in automated schema and integrity tests (`unique`, `not_null`). |
+| **Machine Learning Engine** | `LightGBM` | High-accuracy gradient-boosted decision trees optimized for tabular time series with minimal inference latency. |
+| **Forecasting Strategy** | `Recursive Forecasting` | Iteratively feeds preceding predictions into `lag_1h` and `lag_24h` feature slots across a 168-hour forward horizon. |
+| **Experiment Tracking** | `MLflow` | Centralized tracking of model hyperparameters, evaluation metrics (MAE, RMSE, R²), and reproducible model versioning. |
+| **Workflow Orchestration** | `Apache Airflow` | Thin DAG design pattern executing daily scheduled pipelines (03:00 UTC) with retries, logging, and state management. |
+| **Serving & Dashboard** | `Streamlit & Plotly` | Interactive web dashboard featuring date-range sliding windows, weekly congestion heatmaps, and meteorological impact analysis. |
+| **Software Architecture** | `SOLID & Protocols` | I/O boundaries decoupled via `typing.Protocol` interfaces (`StorageReader`, `StorageWriter`), atomic writes, strict `Mypy` type checking, and `Ruff` linting. |
 
 ---
 
-## 📂 Dizin Yapısı
+## Directory Layout
 
-Proje standart `src` layout mimarisine ve katmanlı bağımlılık yönüne (`domain ← ingest/storage ← pipelines ← dags/dashboard`) sahiptir:
+The project adopts a standard `src` layout with strict unidirectional dependencies (`domain <- ingest/storage/features <- ml <- pipelines <- dags/dashboard`):
 
 ```text
 Istanbul-City-Pulse/
-├── dags/                                 # Apache Airflow DAG tanımları
-│   └── traffic_prediction_dag.py         # Canlı tahmin hattını tetikleyen ince DAG
-├── data/                                 # Yerel veri ambarı (Git'e eklenmez)
-│   ├── bronze/                           # Ham API ve CSV yanıtları
-│   ├── silver/                           # Temizlenmiş Parquet tabloları
-│   ├── gold/                             # Analitik tablolar ve canlı tahminler
-│   └── warehouse.duckdb                  # dbt/DuckDB analitik veritabanı
-├── dbt/                                  # dbt Veri Ambarı Projesi
+├── dags/                                 # Apache Airflow workflow definitions
+│   └── traffic_prediction_dag.py         # Thin DAG triggering daily live inference
+├── data/                                 # Local data lake and warehouse (Git-ignored)
+│   ├── bronze/                           # Immutable raw API and CSV responses
+│   ├── silver/                           # Cleaned, standardized hourly Parquet files
+│   ├── gold/                             # Analytical fact tables and prediction outputs
+│   └── warehouse.duckdb                  # Embedded DuckDB analytical database
+├── dbt/                                  # dbt data warehouse project
 │   ├── models/
-│   │   ├── staging/                      # Ham tablolardan tipli view'lar (stg_*)
-│   │   ├── intermediate/                 # Trafik, hava ve takvim birleştirme
-│   │   └── marts/                        # fct_city_pulse_hourly fact tablosu
-│   ├── profiles.yml                      # İzole DuckDB bağlantı profili
-│   └── dbt_project.yml                   # Model konfigürasyonları
-├── src/city_pulse/                       # Ana Python kaynak kodu
-│   ├── domain/                           # Saf veri modelleri ve sabitler (Entities)
-│   ├── ingest/                           # Dış API adaptörleri (İBB, Open-Meteo)
-│   ├── storage/                          # Protocol tabanlı atomik disk yazıcıları
-│   ├── features/                         # Lag, takvim ve hava durumu öznitelik mühendisliği
-│   ├── ml/                               # Model eğitimi, TimeSplit, Baseline ve LightGBM
-│   ├── pipelines/                        # Orkestrasyon akışları (Inference & Ingestion)
-│   └── dashboard/                        # Modüler Streamlit paneli (data, charts, app)
-├── tests/                                # Ağ ve diskten bağımsız Pytest testleri
-│   ├── unit/                             # Birim testler (Sahte modeller & mocklar)
-│   └── integration/                      # Modül entegrasyon testleri
-├── Makefile                              # Standartlaştırılmış proje komutları
-├── pyproject.toml                        # Proje ayarları ve bağımlılık grupları
-└── uv.lock                               # Deterministik bağımlılık kilidi
+│   │   ├── staging/                      # Typed views over raw storage (stg_*)
+│   │   ├── intermediate/                 # Joined intermediate views
+│   │   └── marts/                        # Final fct_city_pulse_hourly fact table
+│   ├── profiles.yml                      # Isolated DuckDB connection profile
+│   └── dbt_project.yml                   # Model configurations and materializations
+├── src/city_pulse/                       # Core Python package
+│   ├── domain.py                         # Pure domain entities, coordinates, and constants
+│   ├── storage.py                        # Protocol-based atomic file storage (FileStore)
+│   ├── config.py                         # Pydantic-settings environment configuration
+│   ├── sql_shell.py                      # Interactive DuckDB SQL shell
+│   ├── features/                         # Feature engineering (lags, calendar, weather)
+│   ├── ingest/                           # External API clients (IMM, Open-Meteo, TomTom)
+│   ├── ml/                               # ML protocols, baseline model, LightGBM, and MLflow
+│   ├── pipelines/                        # Executable ETL, training, and inference pipelines
+│   └── dashboard/                        # Modular Streamlit application (app, data, charts)
+├── tests/                                # Isolated Pytest suite
+│   ├── unit/                             # Unit tests with mocked I/O boundaries
+│   └── integration/                      # End-to-end integration tests
+├── Makefile                              # Standardized developer commands
+├── pyproject.toml                        # Project metadata, tools, and dependency groups
+└── uv.lock                               # Deterministic dependency lockfile
 ```
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## Quickstart
 
-### 1. Gereksinimler
-* **Python:** 3.12+
-* **Paket Yöneticisi:** [uv](https://docs.astral.sh/uv/) kurulu olmalıdır.
+### 1. Prerequisites
+* **Python:** Version 3.12 or higher.
+* **Package Manager:** [uv](https://docs.astral.sh/uv/) installed.
 
-### 2. Kurulum
-Projeyi klonlayıp tüm bağımlılık gruplarını (`ml`, `dbt`, `dev`) tek seferde senkronize edin:
+### 2. Environment Setup
+Clone the repository and synchronize all dependency groups (`ml`, `dbt`, `dev`, `quality`):
 
 ```bash
-git clone https://github.com/KULLANICI_ADIN/Istanbul-City-Pulse.git
-cd Istanbul-City-Pulse
+git clone https://github.com/MuhammedKeremDemirbent/ISTANBUL-CITY-PULSE.git
+cd ISTANBUL-CITY-PULSE
 make install
 ```
 
-### 3. Veri Dönüşümü ve Kalite Testleri (dbt)
-DuckDB üzerindeki analitik modelleri derleyin ve veri bütünlüğü testlerini çalıştırın:
+### 3. Data Transformations and Quality Tests (dbt)
+Compile the analytical models and run automated data integrity tests against DuckDB:
 
 ```bash
-make dbt-run   # Modelleri oluşturur (Staging -> Marts)
-make dbt-test  # Unique ve Not-Null testlerini koşturur
+make dbt-run   # Builds all models (Staging -> Intermediate -> Marts)
+make dbt-test  # Runs unique and not-null validation tests
 ```
 
-### 4. Canlı Kontrol Panelini Başlatma (Streamlit)
-Modelin ürettiği 168 saatlik canlı tahminleri, ısı haritasını ve pik saat analizlerini tarayıcıda açın:
+### 4. Launch the Live Analytics Dashboard (Streamlit)
+Start the interactive monitoring panel displaying the 168-hour forecast, heatmaps, and peak-hour analysis:
 
 ```bash
 make dashboard
 ```
-> Panel yerel tarayıcınızda otomatik olarak açılır: `http://localhost:8501`
+> The dashboard will automatically open in your browser: `http://localhost:8501`
 
-### 5. Deney Takibi (MLflow UI)
-Eğitilen modellerin parametre ve metriklerini incelemek için:
+### 5. Experiment Tracking (MLflow UI)
+Review trained model runs, hyperparameters, and evaluation metrics:
 
 ```bash
 make mlflow
 ```
-> MLflow arayüzü: `http://localhost:5000`
+> MLflow UI is available at: `http://localhost:5000`
 
 ---
 
-## 🧪 Testler ve Kod Kalitesi
+## Code Quality and Testing Standards
 
-Projede yazılan her kod katı kalite standartlarına tabidir. Teslim öncesi tüm kontrollerin yeşil olması zorunludur:
+All code contributions adhere to strict quality gates. Run all verification checks locally:
 
 ```bash
 make check
 ```
 
-Bu komut arka planda sırasıyla şunları çalıştırır:
-1. `uv run ruff check .` $\rightarrow$ Hızlı Python linter kontrolü.
-2. `uv run ruff format --check .` $\rightarrow$ PEP 8 kod stili doğrulaması.
-3. `uv run mypy src` $\rightarrow$ Katı statik tip güvenliği denetimi.
-4. `uv run pytest` $\rightarrow$ Ağ ve diskten bağımsız birim testleri.
+This target runs the following checks in sequence:
+1. `uv run ruff check .` (Python linting)
+2. `uv run ruff format --check .` (PEP 8 code formatting verification)
+3. `uv run mypy src` (Strict static type verification)
+4. `uv run pytest tests` (Network-isolated unit and integration tests)
 
 ---
 
-## 📊 Makine Öğrenimi Başarım Kriterleri
+## Machine Learning Evaluation and Methodology
 
-Trafik yoğunluğu gibi güçlü periyodik (sezonsallık) içeren zaman serilerinde saf rastgele eğitim/test ayrımı **veri sızıntısına (data leakage)** yol açar. Bu nedenle:
-* **Time-Based Split:** Veri kronolojik olarak bölünmüştür (Eğitim: 2023–2024, Doğrulama: 2025).
-* **Baseline Regressor:** Eğitilen LightGBM modeli, "Haftanın Günü $\times$ Günün Saati" ortalamasını alan basit bir baz model ile kıyaslanmış; belirgin biçimde daha düşük MAE ve RMSE ürettiği doğrulanmıştır.
-* **Recursive Lag Güncellemesi:** 168 saatlik geleceğe tahmin yapılırken ilk 24 saat son bilinen gerçek trafikten, sonraki saatler ise modelin bir önceki tahminlerinden (`lag_1h` ve `lag_24h`) dinamik olarak beslenmektedir.
+Tabular time series data with strong temporal seasonality requires strict leakage-free evaluation:
+* **Time-Based Splitting:** Data is partitioned chronologically (Training: 2023–2024, Validation: 2025). Random cross-validation is strictly avoided to prevent lookahead bias.
+* **Baseline Regressor:** LightGBM performance is benchmarked against a naive "Day-of-Week x Hour-of-Day" baseline model, verifying statistically significant reductions in MAE and RMSE.
+* **Recursive Lag Updating:** When projecting 168 hours into the future, the model initializes lags with the last known ground-truth traffic value, then dynamically injects its own previous predictions into `lag_1h` and `lag_24h` for subsequent steps.
 
 ---
 
-## 📜 Lisans ve Atıflar
+## Licenses and Attributions
 
-* **İBB Açık Veri Portalı:** İstanbul Büyükşehir Belediyesi açık veri lisansı koşullarına tabidir.
-* **Open-Meteo:** ERA5 yeniden analiz ve hava tahmin verileri [Creative Commons Attribution 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) lisansıyla kullanılmıştır.
-* **Proje Lisansı:** MIT Lisansı ile sunulmaktadır.
+* **IMM Open Data Portal:** Subject to the terms and conditions of the Istanbul Metropolitan Municipality Open Data Portal.
+* **Open-Meteo:** ERA5 reanalysis and weather forecast data are provided under the [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license.
+* **Project License:** Distributed under the MIT License.
