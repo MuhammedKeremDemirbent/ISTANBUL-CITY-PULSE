@@ -22,3 +22,5 @@ RUN pip install --no-cache-dir \
     "requests>=2.32.0" \
     "pydantic>=2.10.0" \
     "pydantic-settings>=2.7.0"
+
+    
