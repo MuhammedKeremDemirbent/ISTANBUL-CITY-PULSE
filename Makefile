@@ -76,3 +76,5 @@ dbt-test:
 
 dashboard:
 	uv run streamlit run src/city_pulse/dashboard/app.py
+
+	
