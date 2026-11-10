@@ -7,7 +7,6 @@ def plot_timeseries(pdf: pd.DataFrame, threshold: float) -> go.Figure:
     """168 saatlik trafik ve yağış eğrisini ferah ve kaydırılabilir çizer."""
     fig = go.Figure()
 
-    # 1. Ana trafik tahmin çizgisi
     fig.add_trace(
         go.Scatter(
             x=pdf["timestamp"],
@@ -21,7 +20,6 @@ def plot_timeseries(pdf: pd.DataFrame, threshold: float) -> go.Figure:
         )
     )
 
-    # 2. Yağış çubukları (Sağ eksen)
     fig.add_trace(
         go.Bar(
             x=pdf["timestamp"],
@@ -34,7 +32,6 @@ def plot_timeseries(pdf: pd.DataFrame, threshold: float) -> go.Figure:
         )
     )
 
-    # 3. Kritik eşik referans çizgisi
     fig.add_hline(
         y=threshold,
         line_dash="dash",

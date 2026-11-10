@@ -2,7 +2,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Proje kökündeki 'src' dizinini Python yoluna ekle
 SRC_DIR = Path(__file__).resolve().parents[2]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -24,7 +23,6 @@ from city_pulse.dashboard.data import (
     load_latest_forecast,
 )
 
-# 1. Sayfa Ayarları
 st.set_page_config(
     page_title="Istanbul City Pulse | Traffic Forecast",
     page_icon="🚗",
@@ -32,7 +30,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# 2. Veri Yükleme
 try:
     df, filename = load_latest_forecast()
 except FileNotFoundError:
@@ -43,7 +40,6 @@ except FileNotFoundError:
     )
     st.stop()
 
-# 3. Sidebar (Filtreler ve Kontrol)
 with st.sidebar:
     st.image(
         "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Istanbul_Metropolitan_Municipality_logo.svg/512px-Istanbul_Metropolitan_Municipality_logo.svg.png",
@@ -77,17 +73,14 @@ with st.sidebar:
         """
     )
 
-# 4. Veriyi Filtrele ve Metrikleri Hesapla
 filtered_df = filter_by_day(df, selected_day)
 kpis = compute_kpis(filtered_df, traffic_threshold)
 
-# 5. Başlık ve KPI Kartları
 st.title("🚗 Istanbul City Pulse — Canlı Trafik Tahmin Paneli")
 st.markdown(
     "Open-Meteo hava tahminleri ve LightGBM makine öğrenimi modeliyle üretilen **168 saatlik (7 gün)** şehir içi trafik projeksiyonu."
 )
 
-# Ferah Metrik Kutuları
 with st.container():
     c1, c2, c3, c4 = st.columns(4)
     with c1, st.container(border=True):
@@ -118,7 +111,6 @@ with st.container():
 
 st.write("")
 
-# 6. Sekmeli Görünüm (Modern SaaS Yapısı)
 tab_trend, tab_heatmap, tab_weather, tab_data = st.tabs(
     [
         "📈 168 Saatlik Trafik Eğrisi",
@@ -128,7 +120,6 @@ tab_trend, tab_heatmap, tab_weather, tab_data = st.tabs(
     ]
 )
 
-# TAB 1: ZAMAN SERİSİ
 with tab_trend:
     st.markdown("#### 7 Günlük Kesintisiz Trafik ve Yağış Projeksiyonu")
     st.caption(
@@ -137,7 +128,6 @@ with tab_trend:
     fig_ts = plot_timeseries(filtered_df.to_pandas(), traffic_threshold)
     st.plotly_chart(fig_ts, use_container_width=True)
 
-# TAB 2: ISI HARİTASI
 with tab_heatmap:
     st.markdown("#### Haftalık Yoğunluk Matrisi (00:00 — 23:00)")
     st.caption(
@@ -146,7 +136,6 @@ with tab_heatmap:
     fig_heat = plot_heatmap(compute_heatmap_matrix(df))
     st.plotly_chart(fig_heat, use_container_width=True)
 
-# TAB 3: HAVA DURUMU & PİK SAATLER
 with tab_weather:
     col_w1, col_w2 = st.columns([5, 5])
     with col_w1:
@@ -173,7 +162,6 @@ with tab_weather:
         )
         st.dataframe(top_peaks, use_container_width=True, hide_index=True)
 
-# TAB 4: HAM VERİ VE İNDİRME
 with tab_data:
     st.markdown("#### Tahmin Veri Seti Detayı")
     cols = [

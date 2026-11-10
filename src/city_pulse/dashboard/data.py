@@ -6,7 +6,7 @@ from typing import Final
 import pandas as pd  # type: ignore[import-untyped]  # pandas-stubs kurulu değil
 import polars as pl
 import streamlit as st
-
+  
 DAY_NAMES: Final[dict[int, str]] = {
     1: "Pazartesi",
     2: "Salı",
