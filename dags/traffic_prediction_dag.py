@@ -65,4 +65,3 @@ if AIRFLOW_AVAILABLE:
         )
 
         fetch_weather >> predict_traffic
-
