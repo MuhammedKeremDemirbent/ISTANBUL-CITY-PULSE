@@ -159,12 +159,14 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return args
 
 
-def main(argv: Sequence[str] | None = None) -> None:
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
-    )
-    args = _parse_args(argv)
-
+def run_training_pipeline(
+    *,
+    tracking_uri: str = "sqlite:///mlflow.db",
+    experiment_name: str = "istanbul-traffic-pulse",
+    train_end: datetime = DEFAULT_TRAIN_END,
+    valid_end: datetime = DEFAULT_VALID_END,
+) -> TrainingResult:
+    """Model eğitim hattını uçtan uca çalıştırır ve MLflow'a kaydeder."""
     root_dir = Path(__file__).resolve().parents[3]
     gold_dir = root_dir / "data" / "gold"
     gold_files = list(gold_dir.glob("*.parquet"))
@@ -205,11 +207,11 @@ def main(argv: Sequence[str] | None = None) -> None:
             school_path,
         )
 
-    split_config = SplitConfig(train_end=args.train_end, valid_end=args.valid_end)
+    split_config = SplitConfig(train_end=train_end, valid_end=valid_end)
     baseline = HourDayBaseline()
     model = LightGbmRegressor()
     registry = MlflowRegistry(
-        tracking_uri=args.tracking_uri, experiment_name=args.experiment_name
+        tracking_uri=tracking_uri, experiment_name=experiment_name
     )
 
     result = run_training(
@@ -227,6 +229,20 @@ def main(argv: Sequence[str] | None = None) -> None:
         result.run_id,
         result.promoted,
         result.model_metrics.mae,
+    )
+    return result
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
+    args = _parse_args(argv)
+    run_training_pipeline(
+        tracking_uri=args.tracking_uri,
+        experiment_name=args.experiment_name,
+        train_end=args.train_end,
+        valid_end=args.valid_end,
     )
 
 
