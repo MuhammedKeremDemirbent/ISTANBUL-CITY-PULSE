@@ -1,0 +1,22 @@
+name: 'istanbul_city_pulse'
+version: '1.0.0'
+config-version: 2
+
+profile: 'city_pulse_duckdb'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  istanbul_city_pulse:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table

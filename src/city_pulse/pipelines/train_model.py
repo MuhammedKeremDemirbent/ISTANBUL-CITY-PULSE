@@ -1,0 +1,250 @@
+import argparse
+import logging
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+
+import polars as pl
+
+from city_pulse.features.builder import build_training_frame
+from city_pulse.ml.baseline import HourDayBaseline
+from city_pulse.ml.evaluate import Metrics, evaluate
+from city_pulse.ml.lightgbm import LightGbmRegressor
+from city_pulse.ml.protocols import Regressor
+from city_pulse.ml.registry import MlflowRegistry, MlflowRegistryError, ModelRegistry
+from city_pulse.ml.split import SplitConfig, time_based_split
+from city_pulse.ml.train import train_model
+
+log = logging.getLogger(__name__)
+
+DEFAULT_TRAIN_END = datetime(2025, 1, 1)
+DEFAULT_VALID_END = datetime(2025, 7, 1)
+
+
+@dataclass(frozen=True, slots=True)
+class TrainingResult:
+    baseline_metrics: Metrics
+    model_metrics: Metrics
+    run_id: str
+    promoted: bool
+
+
+class _LocalConsoleRegistry:
+    """Fallback registry that logs to console when MLflow is unavailable."""
+
+    def log_run(
+        self,
+        *,
+        run_name: str,
+        params: Mapping[str, object],
+        metrics: Metrics,
+        model: Regressor,
+    ) -> str:
+        log.info(
+            "Local Run [%s] - Params: %s | Metrics: MAE=%.4f, RMSE=%.4f",
+            run_name,
+            params,
+            metrics.mae,
+            metrics.rmse,
+        )
+        return "local-run"
+
+    def promote_if_better(self, run_id: str, metrics: Metrics) -> bool:
+        log.info("Model marked as champion.")
+        return True
+
+
+def run_training(
+    main: pl.DataFrame,
+    split_config: SplitConfig,
+    *,
+    model: Regressor,
+    baseline: Regressor,
+    registry: ModelRegistry,
+    holidays: pl.DataFrame | None = None,
+    school_calendar: pl.DataFrame | None = None,
+) -> TrainingResult:
+    """Run end-to-end training, evaluate against baseline, log to registry, and promote."""
+    frame = build_training_frame(main, holidays, school_calendar)
+    split = time_based_split(frame, split_config)
+
+    train_model(baseline, split)
+    train_model(model, split)
+
+    baseline_metrics = evaluate(baseline, split.test)
+    model_metrics = evaluate(model, split.test)
+    valid_metrics = evaluate(model, split.valid)
+
+    log.info(
+        "Validation Results -> Model MAE: %.4f | RMSE: %.4f",
+        valid_metrics.mae,
+        valid_metrics.rmse,
+    )
+    log.info(
+        "Test Set Results  -> Baseline MAE: %.4f | LightGBM MAE: %.4f",
+        baseline_metrics.mae,
+        model_metrics.mae,
+    )
+
+    if model_metrics.mae >= baseline_metrics.mae:
+        log.warning(
+            "Model did not beat baseline (MAE %.4f >= %.4f).",
+            model_metrics.mae,
+            baseline_metrics.mae,
+        )
+    else:
+        diff = ((baseline_metrics.mae - model_metrics.mae) / baseline_metrics.mae) * 100
+        log.info("Model outperformed baseline by %.2f%%.", diff)
+
+    model_name = type(model).__name__
+    try:
+        run_id = registry.log_run(
+            run_name=model_name,
+            params={
+                "model": model_name,
+                "train_rows": split.train.height,
+                "valid_rows": split.valid.height,
+                "test_rows": split.test.height,
+                "baseline_mae": baseline_metrics.mae,
+                "valid_mae": valid_metrics.mae,
+            },
+            metrics=model_metrics,
+            model=model,
+        )
+        promoted = registry.promote_if_better(run_id, model_metrics)
+    except MlflowRegistryError as e:
+        log.warning(
+            "MLflow logging failed (%s), falling back to local console registry.", e
+        )
+        fallback = _LocalConsoleRegistry()
+        run_id = fallback.log_run(
+            run_name=model_name,
+            params={"model": model_name},
+            metrics=model_metrics,
+            model=model,
+        )
+        promoted = fallback.promote_if_better(run_id, model_metrics)
+
+    return TrainingResult(baseline_metrics, model_metrics, run_id, promoted)
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Model Training and Evaluation Pipeline"
+    )
+    parser.add_argument(
+        "--train-end",
+        default=DEFAULT_TRAIN_END,
+        type=datetime.fromisoformat,
+        help="Training end date (ISO format, e.g. 2025-01-01)",
+    )
+    parser.add_argument(
+        "--valid-end",
+        default=DEFAULT_VALID_END,
+        type=datetime.fromisoformat,
+        help="Validation end date (ISO format, e.g. 2025-07-01)",
+    )
+    parser.add_argument(
+        "--tracking-uri",
+        default="sqlite:///mlflow.db",
+        help="MLflow tracking URI (default: sqlite:///mlflow.db)",
+    )
+    parser.add_argument(
+        "--experiment-name",
+        default="istanbul-traffic-pulse",
+        help="MLflow experiment name",
+    )
+    args = parser.parse_args(argv)
+    if args.train_end >= args.valid_end:
+        parser.error("train_end must be earlier than valid_end.")
+    return args
+
+
+def run_training_pipeline(
+    *,
+    tracking_uri: str = "sqlite:///mlflow.db",
+    experiment_name: str = "istanbul-traffic-pulse",
+    train_end: datetime = DEFAULT_TRAIN_END,
+    valid_end: datetime = DEFAULT_VALID_END,
+) -> TrainingResult:
+    """Run model training pipeline and log to MLflow."""
+    root_dir = Path(__file__).resolve().parents[3]
+    gold_dir = root_dir / "data" / "gold"
+    gold_files = list(gold_dir.glob("*.parquet"))
+    if not gold_files:
+        raise FileNotFoundError(
+            f"Gold table not found: {gold_dir}. Run 'merged_datas' pipeline first."
+        )
+
+    gold_path = max(gold_files)
+    log.info("Reading Gold table: %s", gold_path)
+    main_df = pl.read_parquet(gold_path)
+
+    holidays_path = (
+        root_dir / "data" / "silver" / "holidays" / "turkey_holidays_2023_2025.parquet"
+    )
+    holidays_df: pl.DataFrame | None = None
+    if holidays_path.exists():
+        holidays_df = pl.read_parquet(holidays_path)
+        log.info("Loaded holidays table: %d days", holidays_df.height)
+    else:
+        log.warning(
+            "Holidays table not found (%s); continuing with is_holiday=0.",
+            holidays_path,
+        )
+
+    school_path = (
+        root_dir / "data" / "silver" / "school" / "school_calendar_2023_2025.parquet"
+    )
+    school_df: pl.DataFrame | None = None
+    if school_path.exists():
+        school_df = pl.read_parquet(school_path)
+        log.info("Loaded school calendar: %d rows", school_df.height)
+    else:
+        log.warning(
+            "School calendar not found (%s); continuing with school flags=0.",
+            school_path,
+        )
+
+    split_config = SplitConfig(train_end=train_end, valid_end=valid_end)
+    baseline = HourDayBaseline()
+    model = LightGbmRegressor()
+    registry = MlflowRegistry(
+        tracking_uri=tracking_uri, experiment_name=experiment_name
+    )
+
+    result = run_training(
+        main_df,
+        split_config,
+        model=model,
+        baseline=baseline,
+        registry=registry,
+        holidays=holidays_df,
+        school_calendar=school_df,
+    )
+
+    log.info(
+        "Training complete! Run ID: %s | Champion: %s | Test MAE: %.4f",
+        result.run_id,
+        result.promoted,
+        result.model_metrics.mae,
+    )
+    return result
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
+    args = _parse_args(argv)
+    run_training_pipeline(
+        tracking_uri=args.tracking_uri,
+        experiment_name=args.experiment_name,
+        train_end=args.train_end,
+        valid_end=args.valid_end,
+    )
+
+
+if __name__ == "__main__":
+    main()

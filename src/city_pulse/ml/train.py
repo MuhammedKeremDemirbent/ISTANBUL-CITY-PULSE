@@ -1,0 +1,13 @@
+from city_pulse.ml.protocols import Regressor, split_inputs_target
+from city_pulse.ml.split import Split
+
+
+def train_model(model: Regressor, split: Split) -> Regressor:
+    """Train model on split.train. Use split.valid for early stopping if supported."""
+    features, target = split_inputs_target(split.train)
+    if hasattr(model, "fit_eval"):
+        valid_features, valid_target = split_inputs_target(split.valid)
+        model.fit_eval(features, target, valid_features, valid_target)
+    else:
+        model.fit(features, target)
+    return model

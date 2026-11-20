@@ -1,0 +1,71 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.tmp
+*.tmp.*
+
+# Virtual environments
+.venv/
+
+# Environment variables & secrets
+.env
+*.env
+!.env-example
+!.env.example
+
+# IDEs & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache & Testing
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Logging & Airflow Logs
+logs/
+*.log
+
+# dbt (Data Build Tool) artifacts & logs
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/.user.yml
+
+# Data & Database files
+data/
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+
+# MLOps & Experiment Tracking
+mlruns/
+mlflow.db
+
+# Artifacts, Models & Evaluation Outputs
+artifacts/
+models/
+*.pkl
+*.pickle
+*.joblib
+*.onnx
+*.pt
+*.pth
+*.model
+scratchpads/
+reports/*.png
+reports/*.jpg
+reports/*.svg
+reports/*.pdf
+
+# Personal notes
+ZZ_NOTLAR/

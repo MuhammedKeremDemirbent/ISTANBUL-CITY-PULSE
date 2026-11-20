@@ -1,0 +1,70 @@
+from collections.abc import Callable, Mapping
+from typing import Any
+
+import lightgbm as lgb
+import polars as pl
+
+
+class LightGbmRegressor:
+    """LightGBM regressor for traffic index forecasting."""
+
+    def __init__(self, params: Mapping[str, Any] | None = None) -> None:
+        default_params: dict[str, Any] = {
+            "objective": "regression",
+            "metric": "mae",
+            "random_state": 42,
+            "verbose": -1,
+            "n_estimators": 200,
+            "learning_rate": 0.05,
+            "num_leaves": 63,
+            "max_depth": 8,
+            "min_child_samples": 20,
+        }
+        if params:
+            default_params.update(params)
+        self._params = default_params
+        self._model = lgb.LGBMRegressor(**self._params)
+        self._is_fitted = False
+
+    def fit(self, features: pl.DataFrame, target: pl.Series) -> None:
+        """Fit model using feature frame and target series."""
+        if features.is_empty() or target.is_empty():
+            raise ValueError("Training data cannot be empty.")
+        x_train = features.to_pandas()
+        y_train = target.to_numpy()
+        self._model.fit(x_train, y_train)
+        self._is_fitted = True
+
+    def fit_eval(
+        self,
+        features: pl.DataFrame,
+        target: pl.Series,
+        valid_features: pl.DataFrame,
+        valid_target: pl.Series,
+    ) -> None:
+        """Fit model with early stopping on validation dataset."""
+        if features.is_empty() or target.is_empty():
+            raise ValueError("Training data cannot be empty.")
+        x_train = features.to_pandas()
+        y_train = target.to_numpy()
+        x_valid = valid_features.to_pandas()
+        y_valid = valid_target.to_numpy()
+
+        callbacks: list[Callable[..., Any]] = [
+            lgb.early_stopping(stopping_rounds=15, verbose=False)
+        ]
+        self._model.fit(
+            x_train,
+            y_train,
+            eval_set=[(x_valid, y_valid)],
+            callbacks=callbacks,
+        )
+        self._is_fitted = True
+
+    def predict(self, features: pl.DataFrame) -> pl.Series:
+        """Generate predictions and return as Polars Series."""
+        if not self._is_fitted:
+            raise RuntimeError("Model must be fitted before predict.")
+        x_pred = features.to_pandas()
+        preds = self._model.predict(x_pred)
+        return pl.Series("prediction", preds, dtype=pl.Float64)

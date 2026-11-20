@@ -1,0 +1,19 @@
+artifact_path: file:C:/Users/kerem/Desktop/Istanbul-City-Pulse/mlruns/1/models/m-722973e1b9604cb99e5864b8e0b11df7/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.13
+    streamable: false
+mlflow_version: 3.17.2
+model_id: m-722973e1b9604cb99e5864b8e0b11df7
+model_size_bytes: 289376
+model_uuid: m-722973e1b9604cb99e5864b8e0b11df7
+prompts: null
+run_id: 11759dd79772424d971d7901c576806c
+utc_time_created: '2026-11-02 12:15:54.115445'
